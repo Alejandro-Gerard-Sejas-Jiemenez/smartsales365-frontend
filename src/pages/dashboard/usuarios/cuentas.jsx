@@ -8,8 +8,6 @@ export default function CuentasPage() {
   const [loading, setLoading] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]);
-  const [residentes, setResidentes] = useState([]);
-  const [personal, setPersonal] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleteUser, setDeleteUser] = useState(null);
@@ -19,16 +17,10 @@ export default function CuentasPage() {
     setLoading(true);
     setError("");
     Promise.all([
-      api.get("/api/cuenta/usuarios/"),
-      api.get("/api/cuenta/roles/"),
-      api.get("/api/residentes/"),
-      api.get("/api/personal/")
+      api.get("/api/acceso_seguridad/usuarios/"),
     ])
       .then(([u, r, res, per]) => {
         setUsuarios(Array.isArray(u) ? u : []);
-        setRoles(Array.isArray(r) ? r : []);
-        setResidentes(Array.isArray(res) ? res : []);
-        setPersonal(Array.isArray(per) ? per : []);
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
@@ -56,7 +48,8 @@ export default function CuentasPage() {
   function saveUser(data) {
     setLoading(true);
     const isEdit = !!data.id;
-    const url = isEdit ? `/api/cuenta/usuarios/${data.id}/` : "/api/cuenta/usuarios/";
+    console.log('Payload enviado al backend:', data);
+    const url = isEdit ? `/api/acceso_seguridad/usuarios/${data.id}/` : "/api/acceso_seguridad/usuarios/";
     const method = isEdit ? api.put : api.post;
     method(url, data)
       .then(() => {
@@ -78,7 +71,7 @@ export default function CuentasPage() {
   function confirmDelete() {
     if (!deleteUser) return;
     setLoading(true);
-    api.del(`/api/cuenta/usuarios/${deleteUser.id}/`)
+    api.del(`/api/acceso_seguridad/usuarios/${deleteUser.id}/`)
       .then(() => {
         setDeleteUser(null);
         cargar();
@@ -88,13 +81,11 @@ export default function CuentasPage() {
   }
 
   const rows = usuarios.map(u => ({
-    id: u.id,
-    correo: u.correo,
-    nombre_completo: `${u.nombre || ''} ${u.apellido || ''}`.trim() || '—',
-    activo: u.is_active,
-    propietario: u.personal ? `Personal: ${u.personal.nombre}` : 
-                 u.residente ? `Residente: ${u.residente.nombre}` : '—',
-    rol: u.rol ? u.rol.nombre : "—"
+  id: u.id,
+  correo: u.correo,
+  nombre_completo: `${u.nombre || ''} ${u.apellido || ''}`.trim() || '—',
+  activo: u.is_active,
+  rol: u.rol ? u.rol : "—"
   }));
 
 
@@ -104,8 +95,6 @@ export default function CuentasPage() {
         <AccountForm
           initialUser={editing}
           roles={roles}
-          residentes={residentes}
-          personal={personal}
           onSubmit={saveUser}
           onCancel={() => { setShowForm(false); setEditing(null); }}
           loading={loading}
@@ -126,7 +115,6 @@ export default function CuentasPage() {
           { key: "id", label: "ID", width: "70px", enableSort: true },
           { key: "nombre_completo", label: "Nombre Completo", enableSort: true },
           { key: "correo", label: "Correo", enableSort: true },
-          { key: "propietario", label: "Propietario", enableSort: true },
           { key: "rol", label: "Rol", hideBelow: "md" },
           {
             key: "activo",

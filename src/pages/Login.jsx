@@ -35,9 +35,11 @@ export default function Login() {
       setToken(data.access);
       console.log("👤 Obteniendo perfil del usuario...");
       setUser(data.usuario);
-      const raw = data.usuario?.is_superuser;
-      const isSuperuser = (raw === true) || (raw === 1) || (String(raw).toLowerCase() === 'true');
-      if (isSuperuser) {
+      const raw = data.usuario?.rol;
+      console.log("👤 Rol del usuario:", raw);
+      const administrador = (raw === 'ADMIN') ;
+      console.log("👤 Es administrador:", administrador);
+      if (administrador) {
          navigate('/dashboard');
       } else {
         navigate('/');

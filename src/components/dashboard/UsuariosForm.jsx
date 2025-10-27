@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 export default function AccountForm({
   initialUser = null,
   roles = [],
-  residentes = [],
-  personal = [],
   onSubmit,
   onCancel,
   loading = false
@@ -16,9 +14,7 @@ export default function AccountForm({
     nombre: "",
     apellido: "",
     telefono: "",
-    rol_id: "",
-    residente: "",
-    personal: "",
+    rol: "CLIENTE",
     is_active: true
   });
   const [touched, setTouched] = useState({});
@@ -31,9 +27,7 @@ export default function AccountForm({
         nombre: initialUser.nombre || "",
         apellido: initialUser.apellido || "",
         telefono: initialUser.telefono || "",
-        rol_id: initialUser.rol ? initialUser.rol.id : "",
-        residente: initialUser.residente || "",
-        personal: initialUser.personal || "",
+        rol: initialUser.rol || "CLIENTE",
         is_active: initialUser.is_active
       });
     } else {
@@ -43,9 +37,7 @@ export default function AccountForm({
         nombre: "",
         apellido: "",
         telefono: "",
-        rol_id: "",
-        residente: "",
-        personal: "",
+        rol: "CLIENTE",
         is_active: true
       });
     }
@@ -61,21 +53,19 @@ export default function AccountForm({
       correo: true,
       password: true,
       nombre: true,
-      apellido: true
+      apellido: true,
     });
     if (!form.correo || (!editMode && !form.password) || !form.nombre || !form.apellido) return;
     
     const payload = {
       id: initialUser?.id,
-      correo: form.correo.trim(),
-      password: form.password.trim(),
-      nombre: form.nombre.trim(),
-      apellido: form.apellido.trim(),
-      telefono: form.telefono.trim(),
-      rol_id: form.rol_id || null,
-      residente: form.residente || null,
-      personal: form.personal || null,
-      is_active: form.is_active
+      correo: String(form.correo).trim(),
+      password: String(form.password).trim(),
+      nombre: String(form.nombre).trim(),
+      apellido: String(form.apellido).trim(),
+      telefono: String(form.telefono).trim(),
+      rol: form.rol || "CLIENTE",
+      is_active: Boolean(form.is_active)
     };
     if (editMode && !payload.password) delete payload.password;
     onSubmit(payload);
@@ -189,66 +179,20 @@ export default function AccountForm({
               />
             }
           />
-          <Field
-            label="Rol"
-            children={
-              <select
-                value={form.rol_id}
-                onChange={e => setField("rol_id", e.target.value)}
-                disabled={loading}
-                className="input-base"
-              >
-                <option value="">(Sin rol)</option>
-                {roles.map(r => (
-                  <option key={r.id} value={r.id}>{r.nombre}</option>
-                ))}
-              </select>
-            }
-          />
-
-          <Field
-            label="Residente"
-            children={
-              <select
-                value={form.residente}
-                onChange={e => {
-                  setField("residente", e.target.value);
-                  if (e.target.value) setField("personal", ""); // Limpiar personal si selecciona residente
-                }}
-                disabled={loading}
-                className="input-base"
-              >
-                <option value="">(Sin residente)</option>
-                {residentes.map(r => (
-                  <option key={r.id} value={r.id}>
-                    {r.nombre} {r.apellidos} - Residencia {r.residencia}
-                  </option>
-                ))}
-              </select>
-            }
-          />
-
-          <Field
-            label="Personal"
-            children={
-              <select
-                value={form.personal}
-                onChange={e => {
-                  setField("personal", e.target.value);
-                  if (e.target.value) setField("residente", ""); // Limpiar residente si selecciona personal
-                }}
-                disabled={loading}
-                className="input-base"
-              >
-                <option value="">(Sin personal)</option>
-                {personal.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre} - {p.cargo}
-                  </option>
-                ))}
-              </select>
-            }
-          />
+            <Field
+              label="Rol"
+              children={
+                <select
+                  value={form.rol}
+                  onChange={e => setField("rol", e.target.value)}
+                  disabled={loading}
+                  className="input-base"
+                >
+                  <option value="CLIENTE">CLIENTE</option>
+                  <option value="ADMIN">ADMINISTRADOR</option>
+                </select>
+              }
+            />
 
           <Field
             label="Activo"
@@ -271,7 +215,7 @@ export default function AccountForm({
 
         {/* Nota informativa */}
         <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-          <strong>Nota:</strong> Solo puedes asignar una cuenta a un residente O a personal, no a ambos.
+          <strong>Nota:</strong> Se requiere rellenar todos los campos obligatorios.
         </div>
       </form>
     </div>

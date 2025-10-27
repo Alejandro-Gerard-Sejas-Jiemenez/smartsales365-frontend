@@ -11,7 +11,7 @@ export default function BitacoraPage() {
     setLoading(true);
     setError("");
     api
-      .get("/api/cuenta/bitacora/")
+      .get("/api/acceso_seguridad/bitacora/")
       .then((d) => setList(Array.isArray(d) ? d : []))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
