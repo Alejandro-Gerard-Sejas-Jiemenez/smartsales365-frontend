@@ -1,54 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { clearAuth, getUser } from "../services/auth.js";
+import { FaKey, FaBuilding, FaShoppingBag, FaChartLine, FaTachometerAlt, FaHome } from 'react-icons/fa';
+import { FiLogOut } from 'react-icons/fi';
 
 const menu = [
 	{
 		grupo: "Acceso y Seguridad",
-		icono: "🔑",
+		icon: FaKey,
 		opciones: [
 			{ nombre: "Cuentas", ruta: "/dashboard/usuarios" },
-			{ nombre: "Roles", ruta: "/dashboard/usuarios/roles" },
 			{ nombre: "Bitacora", ruta: "/dashboard/usuarios/bitacora" },
 			{ nombre: "Avisos", ruta: "/dashboard/avisos" },
 		],
 	},
 	{
-		grupo: "Comunidad",
-		icono: "🏢",
+		grupo: "Catalogo",
+		icon: FaBuilding,
 		opciones: [
-			{ nombre: "Residentes", ruta: "/dashboard/residentes" },
-			{ nombre: "Residencias", ruta: "/dashboard/residencias" },
-			{ nombre: "Vehículos", ruta: "/dashboard/vehiculos" },
-			{ nombre: "Mascotas", ruta: "/dashboard/mascotas" },
-			{ nombre: "Visitantes", ruta: "/dashboard/visitantes" },
+			{ nombre: "Clientes", ruta: "/dashboard/clientes" },
+			{ nombre: "Categorias", ruta: "/dashboard/categorias" },
+			{ nombre: "Productos", ruta: "/dashboard/productos" },
+			{ nombre: "Inventario", ruta: "/dashboard/inventario" },
 		],
 	},
-
-	{grupo: "Personal",
-		icono: "👷", opciones: [
-			{ nombre: "Personal", ruta: "/dashboard/personal" },
-			{ nombre: "Tareas", ruta: "/dashboard/tareas" },
-		],
-	},
-
 	{
-		grupo: "Áreas Comunes",
-		icono: "🛠️",
+		grupo: "Venta Transaccion",
+		icon: FaShoppingBag,
 		opciones: [
-			{ nombre: "Áreas Comunes", ruta: "/dashboard/areas" },
+			{ nombre: "Venta", ruta: "/dashboard/venta" },
+			{ nombre: "Notificaciones", ruta: "/dashboard/notificaciones" },
+		],
+	},
+	{
+		grupo: "Analisis Inteligencia ",
+		icon: FaChartLine,
+		opciones: [
+			{ nombre: "Dashboard ", ruta: "/dashboard/areas" },
 			{ nombre: "Reglas", ruta: "/dashboard/areas/reglas" },
 			{ nombre: "Horarios", ruta: "/dashboard/areas/horarios" },
-		],
-	},
-	{
-		grupo: "Reservas y Pagos",
-		icono: "💳",
-		opciones: [
-			{ nombre: "Pagos", ruta: "/dashboard/pagos" },
-			{ nombre: "Facturas", ruta: "/dashboard/facturas" },
-			{ nombre: "Concepto Pago", ruta: "/dashboard/conceptos-pago" },
-			{ nombre: "Reservas", ruta: "/dashboard/reservas" },
 		],
 	},
 ];
@@ -114,7 +104,7 @@ export default function AdminLayout() {
 										location.pathname === "/dashboard" ? "bg-gray-800" : ""
 									}`}
 								>
-									<span>🏠</span>
+									<span className="text-lg"><FaTachometerAlt /></span>
 									<span>Dashboard</span>
 								</Link>
 							</li>
@@ -129,9 +119,14 @@ export default function AdminLayout() {
 											aria-expanded={abierto}
 										>
 											<span className="flex items-center gap-3">
-												<span>{grupo.icono}</span>
-												{grupo.grupo}
-											</span>
+													<span className="text-lg">
+														{(() => {
+															const Icon = grupo.icon || null;
+															return Icon ? <Icon /> : null;
+														})()}
+													</span>
+													{grupo.grupo}
+												</span>
 											<span className="text-xs">{abierto ? "▲" : "▼"}</span>
 										</button>
 										{abierto && (
@@ -165,13 +160,14 @@ export default function AdminLayout() {
 							onClick={() => setSidebarOpen(false)}
 							className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 rounded-md transition"
 						>
-							<span>🏡</span>
+							<span className="text-lg"><FaHome /></span>
 							<span>Home</span>
 						</Link>
 						<button
 							onClick={handleLogout}
-							className="w-full px-3 py-2 rounded-xl text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition"
+							className="w-full px-3 py-2 rounded-xl text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center gap-2"
 						>
+							<FiLogOut />
 							Cerrar sesión
 						</button>
 						<div className="text-[11px] text-gray-500 pt-1 text-center select-none">

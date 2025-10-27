@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { setToken, setUser } from "../services/auth.js";
 import { api } from "../services/apiClient";
 
@@ -10,6 +11,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [bloqueado, setBloqueado] = useState(false);
   const [intentosRestantes, setIntentosRestantes] = useState(3);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const t = setTimeout(() => setShow(true), 50);
@@ -22,8 +24,8 @@ export default function Login() {
     setLoading(true);
     
     try {
-      console.log("🔐 Enviando login a /api/cuenta/token/");
-      const data = await api.post("/api/cuenta/token/", { correo, password });
+      console.log("🔐 Enviando login a /api/acceso_seguridad/token/");
+      const data = await api.post("/api/acceso_seguridad/token/", { correo, password });
       console.log("✅ Respuesta login:", data);
 
       if (!data.access) {
@@ -32,12 +34,15 @@ export default function Login() {
 
       setToken(data.access);
       console.log("👤 Obteniendo perfil del usuario...");
-      const perfil = await api.get("/api/cuenta/perfil/");
-      setUser(perfil);
-      
-      const rol = (perfil.rol || "").toUpperCase();
-      window.location.href = rol === "ADMIN" || rol === "ADMINISTRADOR" ? "/dashboard" : "/";
-      
+      setUser(data.usuario);
+      const raw = data.usuario?.is_superuser;
+      const isSuperuser = (raw === true) || (raw === 1) || (String(raw).toLowerCase() === 'true');
+      if (isSuperuser) {
+         navigate('/dashboard');
+      } else {
+        navigate('/');
+      }
+
     } catch (err) {
       console.error("❌ Error login:", err);
       
