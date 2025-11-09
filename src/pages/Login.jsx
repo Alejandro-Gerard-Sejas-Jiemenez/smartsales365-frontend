@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { setToken, setUser } from "../services/auth.js";
 import { api } from "../services/apiClient";
 
@@ -12,6 +12,7 @@ export default function Login() {
   const [bloqueado, setBloqueado] = useState(false);
   const [intentosRestantes, setIntentosRestantes] = useState(3);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const t = setTimeout(() => setShow(true), 50);
@@ -42,7 +43,13 @@ export default function Login() {
       if (administrador) {
          navigate('/dashboard');
       } else {
-        navigate('/');
+        // Si venía del carrito, redirigir al carrito
+        const from = location.state?.from;
+        if (from === "/carrito") {
+          navigate("/carrito");
+        } else {
+          navigate('/');
+        }
       }
 
     } catch (err) {

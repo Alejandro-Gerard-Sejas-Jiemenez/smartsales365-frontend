@@ -18,10 +18,10 @@ const menu = [
 		grupo: "Catalogo",
 		icon: FaBuilding,
 		opciones: [
-			{ nombre: "Clientes", ruta: "/dashboard/clientes" },
-			{ nombre: "Categorias", ruta: "/dashboard/categorias" },
-			{ nombre: "Productos", ruta: "/dashboard/productos" },
-			{ nombre: "Inventario", ruta: "/dashboard/inventario" },
+			{ nombre: "Clientes", ruta: "/dashboard/usuarios/clientes" },
+			{ nombre: "Categorias", ruta: "/dashboard/catalogo/categorias" },
+			{ nombre: "Productos", ruta: "/dashboard/catalogo/productos" },
+			{ nombre: "Inventario", ruta: "/dashboard/catalogo/inventario" },
 		],
 	},
 	{

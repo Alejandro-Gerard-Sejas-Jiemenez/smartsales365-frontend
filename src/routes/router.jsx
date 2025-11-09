@@ -22,6 +22,10 @@ import RolesPage from "../pages/dashboard/usuarios/roles.jsx";
 import RolCreatePage from "../pages/dashboard/usuarios/RolCreatePage.jsx";
 import RolEditPage from "../pages/dashboard/usuarios/RolEditPage.jsx";
 import BitacoraPage from "../pages/dashboard/usuarios/bitacora.jsx";
+import ClientesPage from "../pages/dashboard/usuarios/clientes.jsx";
+import CategoriasPage from "../pages/dashboard/catalogo/categorias.jsx";
+import ProductosPage from "../pages/dashboard/catalogo/productos.jsx";
+import Tienda from "../pages/ecommerce/Tienda.jsx";
 import MascotasPage from "../pages/dashboard/residentes/mascotas.jsx";
 import VehiculosPage from "../pages/dashboard/residentes/vehiculos.jsx";
 import VisitantesPage from "../pages/dashboard/residentes/visitantes.jsx";
@@ -63,6 +67,10 @@ const router = createBrowserRouter([
       { path: "areas", element: <AreasPage /> },
       { path: "areas/reglas", element: <ReglasPage /> },
       { path: "usuarios", element: <CuentasPage /> },
+  { path: "usuarios/clientes", element: <ClientesPage /> },
+    { path: "catalogo/categorias", element: <CategoriasPage /> },
+  { path: "catalogo/productos", element: <ProductosPage /> },
+  { path: "tienda", element: <Tienda /> },
       { path: "usuarios/roles", element: <RolesPage /> },
       { path: "usuarios/roles/nuevo", element: <RolCreatePage /> },
       { path: "usuarios/roles/:id/editar", element: <RolEditPage /> },
