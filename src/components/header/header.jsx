@@ -55,7 +55,6 @@ function Header() {
         </button>
       </nav>
 
-
       {/* Menú móvil desplegable */}
       {open && (
         <div className="lg:hidden bg-white border-t border-gray-200 shadow-md">
@@ -72,7 +71,7 @@ function Header() {
           </ul>
         </div>
       )}
-  </header>
+    </header>
   );
 }
 

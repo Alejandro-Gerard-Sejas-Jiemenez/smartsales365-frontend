@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from 'react-router-dom';
-import { setToken, setUser } from "../services/auth.js";
+import { useNavigate, Link } from 'react-router-dom';
+import { login } from "../services/auth.js";
 import { api } from "../services/apiClient";
 
 export default function Login() {
@@ -12,7 +12,6 @@ export default function Login() {
   const [bloqueado, setBloqueado] = useState(false);
   const [intentosRestantes, setIntentosRestantes] = useState(3);
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const t = setTimeout(() => setShow(true), 50);
@@ -25,56 +24,40 @@ export default function Login() {
     setLoading(true);
     
     try {
-      console.log("🔐 Enviando login a /api/acceso_seguridad/token/");
-      const data = await api.post("/api/acceso_seguridad/token/", { correo, password });
-      console.log("✅ Respuesta login:", data);
-
-      if (!data.access) {
-        throw new Error("No se recibió token de acceso");
-      }
-
-      setToken(data.access);
-      console.log("👤 Obteniendo perfil del usuario...");
-      setUser(data.usuario);
-      const raw = data.usuario?.rol;
-      console.log("👤 Rol del usuario:", raw);
-      const administrador = (raw === 'ADMIN') ;
-      console.log("👤 Es administrador:", administrador);
-      if (administrador) {
+      const data = await login(correo, password);
+      if (data.esAdmin) {
          navigate('/dashboard');
       } else {
-        // Si venía del carrito, redirigir al carrito
-        const from = location.state?.from;
-        if (from === "/carrito") {
-          navigate("/carrito");
-        } else {
-          navigate('/');
-        }
+        navigate('/');
       }
 
     } catch (err) {
       console.error("❌ Error login:", err);
       
-      if (err.status === 423) {
+      const errData = err.response?.data || {};
+      const errStatus = err.response?.status;
+
+      if (errStatus === 423) {
         // Usuario bloqueado
         setBloqueado(true);
-        if (err.data?.debe_recuperar) {
+        if (errData?.debe_recuperar) {
           setError("Usuario bloqueado. Serás redirigido a recuperación de contraseña...");
           setTimeout(() => {
-            window.location.href = "/recuperar-password";
+            navigate("/recuperar-password");
           }, 3000);
         } else {
-          const minutos = err.data?.minutos_restantes || 30;
+          const minutos = errData?.minutos_restantes || 30;
           setError(`Usuario bloqueado por ${minutos} minutos. Intenta más tarde.`);
         }
-      } else if (err.status === 401) {
-        const intentos = err.data?.intentos_restantes;
+      } else if (errStatus === 401) {
+        const intentos = errData?.intentos_restantes;
         if (intentos !== undefined) {
           setIntentosRestantes(intentos);
           setError(`Credenciales incorrectas. Te quedan ${intentos} intentos.`);
           if (intentos === 0) {
+            setError("Has agotado tus intentos. Serás redirigido...");
             setTimeout(() => {
-              window.location.href = "/recuperar-password";
+              navigate("/recuperar-password");
             }, 2000);
           }
         } else {
@@ -135,13 +118,15 @@ export default function Login() {
           </button>
           
           <div className="text-center">
-            <button
-              type="button"
-              onClick={() => window.location.href = "/recuperar-password"}
+            {/* Usamos <Link> en lugar de un <button> con window.location.href.
+              Esto mantiene la navegación dentro de la app sin recargar la página.
+            */}
+            <Link
+              to="/recuperar-password"
               className="text-blue-600 hover:text-blue-700 text-sm font-medium underline"
             >
               ¿Olvidaste tu contraseña?
-            </button>
+            </Link>
           </div>
           
           {error && (

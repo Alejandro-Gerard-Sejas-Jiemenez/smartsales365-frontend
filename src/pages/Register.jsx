@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { api } from "../services/apiClient"; // asegúrate que existe este helper
+import { registro } from "../services/auth.js"; 
 import { useNavigate } from "react-router-dom";
 
 export default function Register() {
@@ -26,24 +26,35 @@ export default function Register() {
     password: touched.password && form.password.length < 4
   };
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setTouched({ nombre: true, apellido: true, correo: true, password: true });
     if (invalid.nombre || invalid.apellido || invalid.correo || invalid.password) return;
     setLoading(true);
     setError("");
-    api.post("/api/cuenta/registro/", {
-      nombre: form.nombre.trim(),
-      apellido: form.apellido.trim(),
-      correo: form.correo.trim(),
-      password: form.password
-    })
-      .then(() => {
-        setOk(true);
-        setTimeout(() => navigate("/login"), 1500);
-      })
-      .catch(err => setError(err.message || "Error"))
-      .finally(() => setLoading(false));
+
+    try {
+      await registro({
+        nombre: form.nombre.trim(),
+        apellido: form.apellido.trim(),
+        correo: form.correo.trim(),
+        password: form.password,
+        rol: 'CLIENTE'
+      });
+
+      setOk(true);
+      setTimeout(() => navigate("/login"), 1500);
+
+    } catch (err) {
+      if (err.data) {
+        const messages = Object.values(err.data).flat().join(' ');
+        setError(messages);
+      } else {
+        setError(err.message || "Error al registrar la cuenta");
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -52,7 +63,7 @@ export default function Register() {
         className={`w-full max-w-md bg-white rounded-3xl shadow-2xl p-5 transition-all duration-700 ${show ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}`}
         style={{ boxShadow: "0 8px 32px 0 rgba(60,130,246,0.15)" }}
       >
-        <h1 className="text-3xl font-bold text-blue-700 mb-6 text-center drop-shadow">Registrate</h1>
+        <h1 className="text-3xl font-bold text-blue-700 mb-6 text-center drop-shadow">Regístrate</h1>
 
         {error && (
           <div className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded">

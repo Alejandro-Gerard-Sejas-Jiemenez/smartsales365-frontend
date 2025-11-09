@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { api } from "../services/apiClient";
+import { useNavigate, Link } from "react-router-dom";
+import { solicitarRecuperacion, confirmarRecuperacion } from "../services/auth.js";
 
 export default function RecuperarPassword() {
-  const [step, setStep] = useState(1); // 1: solicitar, 2: confirmar
+  const [step, setStep] = useState(1);
   const [correo, setCorreo] = useState("");
   const [token, setToken] = useState("");
   const [nuevaPassword, setNuevaPassword] = useState("");
@@ -10,20 +11,21 @@ export default function RecuperarPassword() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const navigate = useNavigate();
 
   async function handleSolicitar(e) {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setMensaje("");
     
     try {
-      const response = await api.post("/api/cuenta/solicitar-recuperacion/", { correo });
+      const response = await solicitarRecuperacion(correo);
       setMensaje(response.detail);
       
-      // Si hay token temporal (desarrollo), mostrarlo
       if (response.token_temporal) {
         setToken(response.token_temporal);
-        setMensaje(`${response.detail} Token: ${response.token_temporal}`);
+        setMensaje(`Error de email (solo en DEV). Token: ${response.token_temporal}`);
       }
       
       setStep(2);
@@ -43,17 +45,19 @@ export default function RecuperarPassword() {
     
     setLoading(true);
     setError("");
+    setMensaje("");
     
     try {
-      await api.post("/api/cuenta/confirmar-recuperacion/", {
+      await confirmarRecuperacion(
         token,
-        nueva_password: nuevaPassword,
-        confirmar_password: confirmarPassword
-      });
+        nuevaPassword,
+        confirmarPassword
+      );
       
       setMensaje("¡Contraseña actualizada! Redirigiendo al login...");
+      
       setTimeout(() => {
-        window.location.href = "/login";
+        navigate("/login");
       }, 2000);
       
     } catch (err) {
@@ -95,13 +99,13 @@ export default function RecuperarPassword() {
             </button>
             
             <div className="text-center">
-              <button
-                type="button"
-                onClick={() => window.location.href = "/login"}
+            {/* Usamos Link para la navegación SPA */}
+              <Link
+                to="/login"
                 className="text-blue-600 hover:text-blue-700 text-sm font-medium underline"
               >
                 Volver al login
-              </button>
+              </Link>
             </div>
           </form>
         ) : (
@@ -159,7 +163,7 @@ export default function RecuperarPassword() {
             <div className="text-center">
               <button
                 type="button"
-                onClick={() => setStep(1)}
+                onClick={() => setStep(1)} // Esto está bien, vuelve al paso anterior
                 className="text-blue-600 hover:text-blue-700 text-sm font-medium underline"
               >
                 Solicitar nuevo token
@@ -168,7 +172,8 @@ export default function RecuperarPassword() {
           </form>
         )}
 
-        {step === 1 && mensaje && (
+      {/* Mantenemos tu lógica de mensajes, solo limpiamos al inicio */}
+        {step === 1 && mensaje && !error && (
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-xl text-green-800 text-sm text-center">
             ✅ {mensaje}
           </div>
