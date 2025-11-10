@@ -2,18 +2,16 @@
 import { api } from './apiClient.js';
 
 // --- Funciones de LocalStorage ---
-
 export function setToken(t){ localStorage.setItem('token', t); }
 export function getToken(){ return localStorage.getItem('token'); }
 export function setUser(u){ localStorage.setItem('user', JSON.stringify(u)); }
 export function getUser(){ try { return JSON.parse(localStorage.getItem('user')); } catch { return null; } }
 export function clearAuth(){
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
 }
 
 // --- Funciones de API ---
-
 /**
  * Llama a la API de login y gestiona la sesión.
  * @param {string} correo - El email del usuario.
@@ -28,26 +26,13 @@ export async function login(correo, password) {
       throw new Error("No se recibió token de acceso");
     }
 
-    // --- !!! LÍNEA DE DEPURACIÓN AÑADIDA !!! ---
-    // Esta línea imprimirá en la consola del navegador el objeto de usuario exacto
-    // que estamos recibiendo del backend.
-    console.log('--- DEBUG: Objeto de Usuario Recibido del Backend ---', data.usuario);
-    // --- !!! FIN DE LÍNEA DE DEPURACIÓN !!! ---
-
-
-    // 2. Guarda el token y el usuario en localStorage
     setToken(data.access);
     setUser(data.usuario);
 
-    // 3. Lógica de Admin (aquí está la corrección)
     const esAdmin = data.usuario?.rol === 'ADMIN' || 
                     data.usuario?.rol === 'Administrador' ||
                     data.usuario?.is_superuser;
     
-    // Mostramos el resultado de la comprobación
-    console.log('--- DEBUG: ¿Es Administrador? ---', esAdmin);
-
-    // 4. Devuelve los datos procesados al componente
     return { 
       usuario: data.usuario, 
       esAdmin: esAdmin 
