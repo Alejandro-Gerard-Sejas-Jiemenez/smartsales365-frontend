@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { clearAuth, getUser } from "../services/auth.js";
+import { Toaster } from 'react-hot-toast';
 
 import { 
   FaKey, 
@@ -38,8 +39,8 @@ const menu = [
         grupo: "Venta Transaccion",
         icon: FaShoppingBag,
         opciones: [
-            { nombre: "Venta", ruta: "/dashboard/venta" },
-            { nombre: "Notificaciones", ruta: "/dashboard/notificaciones" },
+            { nombre: "Registrar Venta", ruta: "/dashboard/ventas/registrar" },
+            { nombre: "Historial de Ventas", ruta: "#" },
         ],
     },
     {
@@ -87,6 +88,17 @@ export default function AdminLayout() {
 
     return (
         <div className="min-h-screen flex overflow-x-hidden">
+            <Toaster 
+                position="top-right" 
+                reverseOrder={false} 
+                toastOptions={{
+                    style: {
+                        fontSize: '16px',
+                        padding: '12px 18px',
+                    },
+                }}
+            />
+
             {/* Sidebar */}
             <aside
                 className={`fixed inset-y-0 left-0 z-40 w-64 bg-gray-900 text-gray-100 transform transition-transform duration-300

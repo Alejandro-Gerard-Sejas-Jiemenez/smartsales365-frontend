@@ -22,6 +22,8 @@ import ProductosPage from "../pages/dashboard/catalogo/productos.jsx";
 import InventariosPage from "../pages/dashboard/catalogo/inventarios.jsx";
 import IngresosPage from "../pages/dashboard/catalogo/ingresos.jsx";
 
+import RegistroVentaPage from "../pages/dashboard/ventas/RegistroVenta.jsx";
+
 import ErrorBoundaryPage from "../pages/ErrorBoundaryPage.jsx";
 import ProtectedRoute from "../components/routing/ProtectedRoute.jsx";
 
@@ -58,6 +60,9 @@ const router = createBrowserRouter([
       { path: "catalogo/productos", element: <ProductosPage /> },
       { path: "catalogo/inventarios", element: <InventariosPage /> },
       { path: "catalogo/ingresos", element: <IngresosPage /> },
+
+      // Módulo: Venta Transaccion
+      { path: "ventas/registrar", element: <RegistroVentaPage /> },
 
     ]
   },
