@@ -1,5 +1,20 @@
 import { useEffect, useState } from "react";
 
+
+const ESTADO_CHOICES = [
+  { value: 'Disponible', label: 'Disponible' },
+  { value: 'Agotado', label: 'Agotado' },
+  { value: 'Descontinuado', label: 'Descontinuado' },
+];
+
+// Mapea el estado 'true' antiguo a 'Disponible'
+const mapEstado = (oldEstado) => {
+  if (oldEstado === true || oldEstado === 'Disponible') return 'Disponible';
+  if (oldEstado === false || oldEstado === 'Descontinuado') return 'Descontinuado';
+  if (oldEstado === 'Agotado') return 'Agotado';
+  return 'Disponible'; // Valor por defecto si es nulo o indefinido
+};
+
 export default function ProductoForm({
   initialProducto = null,
   categorias = [],
@@ -8,20 +23,21 @@ export default function ProductoForm({
   loading = false
 }) {
   const editMode = !!initialProducto;
+
   const [form, setForm] = useState({
     codigo_producto: "",
     nombre: "",
     descripcion: "",
     precio_venta: "",
     precio_compra: "",
-    unidad_medida: "",
     imagen_url: "",
-    estado: true,
+    estado: "Disponible",
     stock_actual: 0,
     ano_garantia: 0,
-    categoria: ""
+    categoria: "",
+    marca: "",
   });
-  const [imagenFile, setImagenFile] = useState(null);
+  
   const [touched, setTouched] = useState({});
 
   useEffect(() => {
@@ -32,12 +48,12 @@ export default function ProductoForm({
         descripcion: initialProducto.descripcion || "",
         precio_venta: initialProducto.precio_venta || "",
         precio_compra: initialProducto.precio_compra || "",
-        unidad_medida: initialProducto.unidad_medida || "",
         imagen_url: initialProducto.imagen_url || "",
-        estado: typeof initialProducto.estado === "boolean" ? initialProducto.estado : true,
+        estado: mapEstado(initialProducto.estado),
         stock_actual: initialProducto.stock_actual || 0,
         ano_garantia: initialProducto.ano_garantia || 0,
-        categoria: initialProducto.categoria || ""
+        categoria: initialProducto.categoria || "",
+        marca: initialProducto.marca || "",
       });
     } else {
       setForm({
@@ -46,12 +62,12 @@ export default function ProductoForm({
         descripcion: "",
         precio_venta: "",
         precio_compra: "",
-        unidad_medida: "",
         imagen_url: "",
-        estado: true,
+        estado: "Disponible",
         stock_actual: 0,
         ano_garantia: 0,
-        categoria: ""
+        categoria: "",
+        marca: "",
       });
     }
   }, [initialProducto]);
@@ -70,24 +86,17 @@ export default function ProductoForm({
       categoria: true
     });
     if (!form.codigo_producto || !form.nombre || !form.precio_venta || !form.precio_compra || !form.categoria) return;
-    const formData = new FormData();
-    formData.append("codigo_producto", String(form.codigo_producto).trim());
-    formData.append("nombre", String(form.nombre).trim());
-    formData.append("descripcion", String(form.descripcion).trim());
-    formData.append("precio_venta", String(form.precio_venta));
-    formData.append("precio_compra", String(form.precio_compra));
-    formData.append("unidad_medida", String(form.unidad_medida).trim());
-    formData.append("estado", form.estado ? "true" : "false");
-    formData.append("stock_actual", String(form.stock_actual));
-    formData.append("ano_garantia", String(form.ano_garantia));
-    formData.append("categoria", String(form.categoria));
-    if (imagenFile) {
-      formData.append("imagen", imagenFile);
-    }
-    if (initialProducto?.id) {
-      formData.append("id", initialProducto.id);
-    }
-    onSubmit(formData);
+    
+    const payload = {
+      ...form,
+      id: initialProducto?.id,
+    };
+    
+    if (!payload.descripcion) delete payload.descripcion;
+    if (!payload.imagen_url) delete payload.imagen_url;
+    if (!payload.marca) delete payload.marca;
+    
+    onSubmit(payload); // Envía el objeto JSON
   }
 
   const invalid = {
@@ -101,7 +110,9 @@ export default function ProductoForm({
   return (
     <div className="w-full flex justify-center px-3">
       <form onSubmit={handleSubmit}
-        className="w-full max-w-2xl bg-white rounded-3xl border border-gray-200 shadow p-6 sm:p-8 flex flex-col gap-8">
+        className="w-full max-w-3xl bg-white rounded-3xl border border-gray-200 shadow p-6 sm:p-8 flex flex-col gap-8">
+        
+        {/* --- Cabecera y Botones --- */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h2 className="text-2xl font-bold text-gray-800">
             {editMode ? "Editar Producto" : "Nuevo Producto"}
@@ -125,7 +136,9 @@ export default function ProductoForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* --- CAMBIO: Rejilla de 3 columnas para más campos --- */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* --- Campos de Texto (con 'marca' añadido) --- */}
           <Field
             label="Código Producto *"
             error={invalid.codigo_producto && "Requerido"}
@@ -157,17 +170,19 @@ export default function ProductoForm({
             }
           />
           <Field
-            label="Descripción"
+            label="Marca"
             children={
-              <textarea
-                value={form.descripcion}
-                onChange={e => setField("descripcion", e.target.value)}
+              <input
+                value={form.marca}
+                onChange={e => setField("marca", e.target.value)}
                 disabled={loading}
                 className="input-base"
-                placeholder="Descripción"
+                placeholder="Ej: Sony, Samsung, etc."
               />
             }
           />
+
+          {/* --- Precios --- */}
           <Field
             label="Precio Venta *"
             error={invalid.precio_venta && "Requerido"}
@@ -204,56 +219,25 @@ export default function ProductoForm({
               />
             }
           />
+          
+          {/* --- CAMBIO: Select de Estado --- */}
           <Field
-            label="Unidad de Medida"
+            label="Estado"
             children={
-              <input
-                value={form.unidad_medida}
-                onChange={e => setField("unidad_medida", e.target.value)}
+              <select
+                value={form.estado}
+                onChange={e => setField("estado", e.target.value)}
                 disabled={loading}
                 className="input-base"
-                placeholder="Ej: unidad, kg, caja"
-              />
+              >
+                {ESTADO_CHOICES.map(op => (
+                  <option key={op.value} value={op.value}>{op.label}</option>
+                ))}
+              </select>
             }
           />
-          <Field
-            label="Imagen del Producto"
-            children={
-              <input
-                type="file"
-                accept="image/*"
-                onChange={e => setImagenFile(e.target.files[0])}
-                disabled={loading}
-                className="input-base"
-              />
-            }
-          />
-          <Field
-            label="Stock Actual"
-            children={
-              <input
-                type="number"
-                value={form.stock_actual}
-                onChange={e => setField("stock_actual", e.target.value)}
-                disabled={loading}
-                className="input-base"
-                min="0"
-              />
-            }
-          />
-          <Field
-            label="Año Garantía"
-            children={
-              <input
-                type="number"
-                value={form.ano_garantia}
-                onChange={e => setField("ano_garantia", e.target.value)}
-                disabled={loading}
-                className="input-base"
-                min="0"
-              />
-            }
-          />
+
+          {/* --- Detalles (con 'fecha_vencimiento') --- */}
           <Field
             label="Categoría *"
             error={invalid.categoria && "Requerido"}
@@ -274,26 +258,70 @@ export default function ProductoForm({
             }
           />
           <Field
-            label="Estado"
+            label="Stock Actual"
             children={
-              <div className="flex items-center gap-2 h-[46px] px-4 rounded-2xl border border-gray-300 bg-white">
-                <input
-                  type="checkbox"
-                  checked={form.estado}
-                  onChange={e => setField("estado", e.target.checked)}
-                  disabled={loading}
-                  className="w-4 h-4 accent-blue-600"
-                />
-                <span className="text-sm text-gray-700">
-                  {form.estado ? "Activo" : "Inactivo"}
-                </span>
-              </div>
+              <input
+                type="number"
+                value={form.stock_actual}
+                onChange={e => setField("stock_actual", e.target.value)}
+                disabled={loading}
+                className="input-base"
+                min="0"
+              />
             }
           />
+
+          {/* --- Otros --- */}
+          <Field
+            label="Año Garantía"
+            children={
+              <input
+                type="number"
+                value={form.ano_garantia}
+                onChange={e => setField("ano_garantia", e.target.value)}
+                disabled={loading}
+                className="input-base"
+                min="0"
+              />
+            }
+          />
+          
+          {/* --- CAMBIO: De 'file' a 'text' para URL --- */}
+          <Field
+            label="URL de la Imagen"
+            children={
+              <input
+                type="text"
+                value={form.imagen_url}
+                onChange={e => setField("imagen_url", e.target.value)}
+                disabled={loading}
+                className="input-base"
+                placeholder="https://ejemplo.com/imagen.jpg"
+              />
+            }
+          />
+          
+          {/* --- Descripción --- */}
+          <div className="md:col-span-3">
+            <Field
+              label="Descripción"
+              children={
+                <textarea
+                  value={form.descripcion}
+                  onChange={e => setField("descripcion", e.target.value)}
+                  disabled={loading}
+                  className="input-base"
+                  placeholder="Descripción detallada del producto..."
+                  rows={3}
+                />
+              }
+            />
+          </div>
+
         </div>
 
         <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-          <strong>Nota:</strong> Los campos marcados con * son obligatorios.
+          <strong>Nota:</strong> Los campos marcados con * son obligatorios. El stock se actualiza al registrar ingresos en Inventario.
         </div>
       </form>
     </div>

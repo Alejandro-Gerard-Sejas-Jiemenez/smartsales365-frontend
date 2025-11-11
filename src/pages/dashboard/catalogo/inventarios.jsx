@@ -1,29 +1,28 @@
 import { useEffect, useState } from "react";
 import SmartTable from "../../../components/tabla/SmartTable.jsx";
-import CategoriaForm from "../../../components/dashboard/CategoriaForm.jsx";
-
-import { 
-  getCategorias, 
-  createCategoria, 
-  updateCategoria, 
-  deleteCategoria as srvDeleteCategoria
+import InventarioForm from "../../../components/dashboard/InventarioForm.jsx";
+import {
+  getInventarios,
+  createInventario,
+  updateInventario,
+  deleteInventario as srvDeleteInventario
 } from "../../../services/catalogo.service.js";
 import ConfirmDialog from "../../../components/ui/dialogo.jsx";
 
-export default function CategoriasPage() {
+export default function InventariosPage() {
   const [loading, setLoading] = useState(false);
-  const [categorias, setCategorias] = useState([]);
+  const [inventarios, setInventarios] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [deleteCategoria, setDeleteCategoria] = useState(null);
+  const [deleteAlmacen, setDeleteAlmacen] = useState(null);
   const [error, setError] = useState("");
 
   function cargar() {
     setLoading(true);
     setError("");
-    getCategorias()
-      .then((c) => {
-        setCategorias(Array.isArray(c) ? c : []);
+    getInventarios()
+      .then((data) => {
+        setInventarios(Array.isArray(data) ? data : []);
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
@@ -40,21 +39,21 @@ export default function CategoriasPage() {
 
   // Editar
   function onEdit(row) {
-    const categoria = categorias.find(c => c.id === row.id);
-    if (!categoria) return;
-    setEditing(categoria);
+    const almacen = inventarios.find(i => i.id === row.id);
+    if (!almacen) return;
+    setEditing(almacen);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   // Guardar (crear/editar)
-  function saveCategoria(data) {
+  function saveInventario(data) {
     setLoading(true);
     const isEdit = !!data.id;
     
     const promise = isEdit 
-      ? updateCategoria(data.id, data) 
-      : createCategoria(data);
+      ? updateInventario(data.id, data) 
+      : createInventario(data);
 
     promise
       .then(() => {
@@ -68,55 +67,65 @@ export default function CategoriasPage() {
 
   // Eliminar
   function onDelete(row) {
-    const categoria = categorias.find(c => c.id === row.id);
-    if (!categoria) return;
-    setDeleteCategoria(categoria);
+    const almacen = inventarios.find(i => i.id === row.id);
+    if (!almacen) return;
+    setDeleteAlmacen(almacen);
   }
 
   function confirmDelete() {
-    if (!deleteCategoria) return;
+    if (!deleteAlmacen) return;
     setLoading(true);
     
-    srvDeleteCategoria(deleteCategoria.id)
+    srvDeleteInventario(deleteAlmacen.id)
       .then(() => {
-        setDeleteCategoria(null);
+        setDeleteAlmacen(null);
         cargar();
       })
-      .catch(e => setError(e.message))
+      .catch(e => {
+        if (e.message.includes("constraint")) {
+          setError("No se puede eliminar un almacén que ya tiene movimientos de inventario.");
+        } else {
+          setError(e.message);
+        }
+      })
       .finally(() => setLoading(false));
   }
 
-  
-  const rows = categorias.map(c => ({
-    id: c.id,
-    nombre: c.nombre,
-    estado: c.estado
+  // Mapeamos los datos para la tabla
+  const rows = inventarios.map(i => ({
+    id: i.id,
+    codigo: i.codigo,
+    estado: i.estado,
+    fecha_creacion: new Date(i.fecha_creacion).toLocaleString()
   }));
 
   return (
     <div className="space-y-8">
       {showForm && (
-        <CategoriaForm
-          initialCategoria={editing}
-          onSubmit={saveCategoria}
+        <InventarioForm
+          initialInventario={editing}
+          onSubmit={saveInventario}
           onCancel={() => { setShowForm(false); setEditing(null); }}
           loading={loading}
         />
       )}
 
       {error && (
-        <div className="px-4 py-2 rounded border border-red-200 bg-red-50 text-red-600 text-sm">
+        <div 
+          className="px-4 py-2 rounded border border-red-200 bg-red-50 text-red-600 text-sm cursor-pointer"
+          onClick={() => setError(null)}
+        >
           {error}
         </div>
       )}
 
       <SmartTable
-        titulo="Categorías"
+        titulo="Almacenes / Inventarios"
         data={rows}
         loading={loading}
         columns={[
           { key: "id", label: "ID", width: "70px", enableSort: true },
-          { key: "nombre", label: "Nombre", enableSort: true },
+          { key: "codigo", label: "Código", enableSort: true },
           {
             key: "estado",
             label: "Estado",
@@ -130,7 +139,8 @@ export default function CategoriasPage() {
               </span>
             ),
             width: "110px"
-          }
+          },
+          { key: "fecha_creacion", label: "Fecha Creación", enableSort: true },
         ]}
         onCreate={onCreate}
         onEdit={onEdit}
@@ -138,14 +148,14 @@ export default function CategoriasPage() {
       />
 
       <ConfirmDialog
-        open={!!deleteCategoria}
-        title="Eliminar Categoría"
-        message={`¿Seguro que deseas eliminar la categoría "${deleteCategoria?.nombre}"? Esta acción no se puede deshacer.`}
+        open={!!deleteAlmacen}
+        title="Eliminar Almacén"
+        message={`¿Seguro que deseas eliminar el almacén "${deleteAlmacen?.codigo}"? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         loading={loading}
         onConfirm={confirmDelete}
-        onCancel={() => setDeleteCategoria(null)}
+        onCancel={() => setDeleteAlmacen(null)}
       />
     </div>
   );

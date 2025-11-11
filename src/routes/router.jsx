@@ -6,7 +6,6 @@ import {
 import MainLayout from "../layouts/mainLayout.jsx";
 import AdminLayout from "../layouts/AdminLayout.jsx";
 
-
 import Home from "../pages/Home.jsx";
 import Login from "../pages/Login.jsx";
 import Register from "../pages/Register.jsx";
@@ -17,6 +16,11 @@ import CuentasPage from "../pages/dashboard/usuarios/cuentas.jsx";
 import BitacoraPage from "../pages/dashboard/usuarios/bitacora.jsx";
 import AvisosPage from "../pages/dashboard/usuarios/avisos.jsx";
 import ClientesPage from "../pages/dashboard/usuarios/clientes.jsx"; 
+
+import CategoriasPage from "../pages/dashboard/catalogo/categorias.jsx";
+import ProductosPage from "../pages/dashboard/catalogo/productos.jsx";
+import InventariosPage from "../pages/dashboard/catalogo/inventarios.jsx";
+import IngresosPage from "../pages/dashboard/catalogo/ingresos.jsx";
 
 import ErrorBoundaryPage from "../pages/ErrorBoundaryPage.jsx";
 import ProtectedRoute from "../components/routing/ProtectedRoute.jsx";
@@ -43,12 +47,18 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <DashboardHome /> },
       
-      // Acceso y Seguridad
+      // Módulo: Acceso y Seguridad
       { path: "usuarios", element: <CuentasPage /> },
       { path: "usuarios/bitacora", element: <BitacoraPage /> },
       { path: "avisos", element: <AvisosPage /> },
-      { path: "clientes", element: <ClientesPage /> },
       
+      // Módulo: Catálogo
+      { path: "clientes", element: <ClientesPage /> }, // Ya existía
+      { path: "catalogo/categorias", element: <CategoriasPage /> },
+      { path: "catalogo/productos", element: <ProductosPage /> },
+      { path: "catalogo/inventarios", element: <InventariosPage /> },
+      { path: "catalogo/ingresos", element: <IngresosPage /> },
+
     ]
   },
   {
