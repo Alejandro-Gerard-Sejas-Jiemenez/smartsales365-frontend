@@ -1,8 +1,8 @@
 
 import { api } from './apiClient.js'; 
 
-export const getVentas = () => 
-  api.get('/api/ventas/');
+export const getVentas = (params) => 
+  api.get('/api/ventas/', params);
 
 export const getVentaById = (id) => 
   api.get(`/api/ventas/${id}/`);
@@ -19,3 +19,6 @@ export const getVentaById = (id) =>
  */
 export const createVenta = (data) => 
   api.post('/api/ventas/', data);
+
+export const getComprobanteVenta = (id) => 
+  api.getFile(`/api/ventas/${id}/comprobante/`);

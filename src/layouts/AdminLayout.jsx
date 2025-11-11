@@ -40,7 +40,7 @@ const menu = [
         icon: FaShoppingBag,
         opciones: [
             { nombre: "Registrar Venta", ruta: "/dashboard/ventas/registrar" },
-            { nombre: "Historial de Ventas", ruta: "#" },
+            { nombre: "Historial de Ventas", ruta: "/dashboard/ventas/historial" },
         ],
     },
     {

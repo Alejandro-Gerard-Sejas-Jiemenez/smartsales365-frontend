@@ -49,10 +49,52 @@ export async function apiFetch(url, options = {}) {
   return data;
 }
 
+export async function apiFetchFile(url, options = {}) {
+  const token = getToken();
+  const headers = {
+    ...(options.headers || {})
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const isDev = import.meta.env.DEV;
+  const isLocal = window.location.hostname === 'localhost';
+
+  let fullUrl;
+  if (isDev && isLocal) {
+    fullUrl = url;
+  } else {
+    fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+  }
+
+  const res = await fetch(fullUrl, { ...options, headers });
+
+  if (res.status === 401) {
+    clearAuth();
+    if (!url.includes('/login')) window.location.href = '/login';
+  }
+
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+
+  // Devuelve el 'blob' (el archivo binario)
+  return res.blob(); 
+}
+
 export const api = {
-  get: (u) => apiFetch(u),
+  get: (u, params = null) => {
+    let url = u;
+    if (params) {
+      const queryParams = new URLSearchParams(params).toString();
+      if (queryParams) {
+        url += `?${queryParams}`;
+      }
+    }
+    return apiFetch(url);
+  },
   post: (u, b) => apiFetch(u, { method: 'POST', body: JSON.stringify(b) }),
   put: (u, b) => apiFetch(u, { method: 'PUT', body: JSON.stringify(b) }),
   patch: (u, b) => apiFetch(u, { method: 'PATCH', body: JSON.stringify(b) }),
-  del: (u) => apiFetch(u, { method: 'DELETE' })
+  del: (u) => apiFetch(u, { method: 'DELETE' }),
+  getFile: (u) => apiFetchFile(u)
 };

@@ -1,18 +1,7 @@
 import React, { useState, useMemo } from "react";
 
 /**
- * columns: [
- *  {
- *    key: 'correo',
- *    label: 'Correo',
- *    width: '180px',            // opcional
- *    hideBelow: 'sm'|'md'|'lg', // opcional (oculta debajo del breakpoint)
- *    enableSort: true,          // opcional
- *    render: (row, value) => JSX,
- *    headerClass: '',
- *    cellClass: ''
- *  }
- * ]
+ * columns: [...] (doc-string sin cambios)
  */
 export default function SmartTable({
   titulo = "Gestionar",
@@ -24,15 +13,16 @@ export default function SmartTable({
   onEdit,
   onDelete,
   actionsLabel = "Opciones",
-  actionsRender,                
+  actionsRender, 
   showDeletedButton = false,
   deletedActive = false,
   onToggleDeleted,
   className = "",
-  compact = false               
+  compact = false 
 }) {
   const [sortState, setSortState] = useState({ key: null, dir: null }); // dir: 'asc'|'desc'|null
 
+  // --- LÓGICA DE SORT (QUE FALTABA) ---
   const sortableColumns = useMemo(
     () => new Set(columns.filter(c => c.enableSort).map(c => c.key)),
     [columns]
@@ -58,6 +48,7 @@ export default function SmartTable({
     });
     return arr;
   }, [data, sortState]);
+  // --- FIN DE LÓGICA DE SORT ---
 
   function toggleSort(col) {
     if (!sortableColumns.has(col.key)) return;
@@ -77,37 +68,41 @@ export default function SmartTable({
     }
   };
 
+  // --- CAMBIO: Variable para mostrar acciones ---
+  const showActionsColumn = !!(onEdit || onDelete || actionsRender);
+
   return (
     <div className={`w-full bg-white shadow-lg rounded-2xl border border-gray-200 flex flex-col ${className}`}>
-      {/* Header */}
+      {/* Header (sin cambios) */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between px-5 py-4 border-b rounded-t-2xl bg-gradient-to-r from-blue-50 to-white">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800 tracking-tight">{titulo}</h2>
-        <div className="flex flex-wrap gap-2">
-          {showDeletedButton && (
-            <button
-              onClick={onToggleDeleted}
-              className={`px-4 py-2 text-xs md:text-sm rounded-lg border font-semibold transition shadow-sm ${
-                deletedActive
-                  ? "bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200"
-                  : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              {deletedActive ? "Ver Activos" : "Ver Eliminados"}
-            </button>
-          )}
-          {onCreate && (
-            <button
-              onClick={onCreate}
-              className="px-5 py-2 text-xs md:text-sm rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow flex items-center gap-2"
-            >
-              <span className="hidden sm:inline">Crear nuevo</span>
-              <span className="sm:hidden text-base leading-none">＋</span>
-            </button>
-          )}
-        </div>
+        {/* ... (tu código de header, botones, etc.) ... */}
+         <h2 className="text-xl md:text-2xl font-bold text-gray-800 tracking-tight">{titulo}</h2>
+         <div className="flex flex-wrap gap-2">
+           {showDeletedButton && (
+             <button
+               onClick={onToggleDeleted}
+               className={`px-4 py-2 text-xs md:text-sm rounded-lg border font-semibold transition shadow-sm ${
+                 deletedActive
+                   ? "bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200"
+                   : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
+               }`}
+             >
+               {deletedActive ? "Ver Activos" : "Ver Eliminados"}
+             </button>
+           )}
+           {onCreate && (
+             <button
+               onClick={onCreate}
+               className="px-5 py-2 text-xs md:text-sm rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow flex items-center gap-2"
+             >
+               <span className="hidden sm:inline">Crear nuevo</span>
+               <span className="sm:hidden text-base leading-none">＋</span>
+             </button>
+           )}
+         </div>
       </div>
 
-      {/* Scroll interno únicamente aquí */}
+      {/* Scroll interno */}
       <div className="relative w-full">
         <div
           className="overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
@@ -141,15 +136,20 @@ export default function SmartTable({
                     </th>
                   );
                 })}
-                <th className="px-5 py-3 font-semibold text-center whitespace-nowrap border-b border-blue-200 text-xs sm:text-[11px] md:text-xs tracking-wide">
-                  {actionsLabel}
-                </th>
+
+                {/* --- CAMBIO: Condicional --- */}
+                {showActionsColumn && (
+                  <th className="px-5 py-3 font-semibold text-center whitespace-nowrap border-b border-blue-200 text-xs sm:text-[11px] md:text-xs tracking-wide">
+                    {actionsLabel}
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={columns.length + 1} className="px-6 py-10 text-center text-blue-500">
+                  {/* --- CAMBIO: colSpan corregido --- */}
+                  <td colSpan={columns.length + (showActionsColumn ? 1 : 0)} className="px-6 py-10 text-center text-blue-500">
                     <div className="flex flex-col items-center gap-3">
                       <div className="flex gap-1">
                         <span className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse"></span>
@@ -164,7 +164,8 @@ export default function SmartTable({
 
               {!loading && sortedData.length === 0 && (
                 <tr>
-                  <td colSpan={columns.length + 1} className="px-6 py-12 text-center text-gray-400 font-medium">
+                  {/* --- CAMBIO: colSpan corregido --- */}
+                  <td colSpan={columns.length + (showActionsColumn ? 1 : 0)} className="px-6 py-12 text-center text-gray-400 font-medium">
                     {emptyMessage}
                   </td>
                 </tr>
@@ -190,34 +191,38 @@ export default function SmartTable({
                         </td>
                       );
                     })}
-                    <td className="px-5 py-3 text-center whitespace-nowrap">
-                      {actionsRender ? (
-                        actionsRender(row)
-                      ) : (
-                        <div className="flex items-center justify-center gap-2">
-                          {onEdit && (
-                            <button
-                              onClick={() => onEdit(row)}
-                              className="px-3 py-1.5 text-[11px] sm:text-xs rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                              title="Editar"
-                            >
-                              <span className="hidden md:inline">Editar</span>
-                              <span className="md:hidden">✎</span>
-                            </button>
-                          )}
-                          {onDelete && (
-                            <button
-                              onClick={() => onDelete(row)}
-                              className="px-3 py-1.5 text-[11px] sm:text-xs rounded-md bg-red-600 hover:bg-red-700 text-white font-semibold shadow focus:outline-none focus:ring-2 focus:ring-red-400"
-                              title="Eliminar"
-                            >
-                              <span className="hidden md:inline">Eliminar</span>
-                              <span className="md:hidden">🗑️</span>
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </td>
+
+                    {/* --- CAMBIO: Condicional --- */}
+                    {showActionsColumn && (
+                      <td className="px-5 py-3 text-center whitespace-nowrap">
+                        {actionsRender ? (
+                          actionsRender(row)
+                        ) : (
+                          <div className="flex items-center justify-center gap-2">
+                            {onEdit && (
+                              <button
+                                onClick={() => onEdit(row)}
+                                className="px-3 py-1.5 text-[11px] sm:text-xs rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                                title="Editar"
+                              >
+                                <span className="hidden md:inline">Editar</span>
+                                <span className="md:hidden">✎</span>
+                              </button>
+                            )}
+                            {onDelete && (
+                              <button
+                                onClick={() => onDelete(row)}
+                                className="px-3 py-1.5 text-[11px] sm:text-xs rounded-md bg-red-600 hover:bg-red-700 text-white font-semibold shadow focus:outline-none focus:ring-2 focus:ring-red-400"
+                                title="Eliminar"
+                              >
+                                <span className="hidden md:inline">Eliminar</span>
+                                <span className="md:hidden">🗑️</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 ))}
             </tbody>
@@ -225,7 +230,7 @@ export default function SmartTable({
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Footer (sin cambios) */}
       <div className="px-5 py-3 bg-blue-50 rounded-b-2xl text-right text-[11px] sm:text-xs text-blue-700">
         Mostrando {loading ? 0 : sortedData.length} registros
       </div>
