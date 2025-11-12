@@ -22,3 +22,6 @@ export const createVenta = (data) =>
 
 export const getComprobanteVenta = (id) => 
   api.getFile(`/api/ventas/${id}/comprobante/`);
+
+export const getAnalisisTendencias = () => 
+  api.get('/api/ventas/analisis-tendencias/');

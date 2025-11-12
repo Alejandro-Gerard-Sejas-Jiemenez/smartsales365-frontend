@@ -25,6 +25,8 @@ import IngresosPage from "../pages/dashboard/catalogo/ingresos.jsx";
 import RegistroVentaPage from "../pages/dashboard/ventas/RegistroVenta.jsx";
 import HistorialVentasPage from "../pages/dashboard/ventas/HistorialVentas.jsx";
 
+import DashboardIAPage from "../pages/dashboard/analisis/DashboardIA.jsx";
+
 import ErrorBoundaryPage from "../pages/ErrorBoundaryPage.jsx";
 import ProtectedRoute from "../components/routing/ProtectedRoute.jsx";
 
@@ -65,6 +67,8 @@ const router = createBrowserRouter([
       // Módulo: Venta Transaccion
       { path: "ventas/registrar", element: <RegistroVentaPage /> },
       { path: "ventas/historial", element: <HistorialVentasPage /> },
+      // Módulo: Análisis e Inteligencia Artificial
+      { path: "analisis/dashboard-ia", element: <DashboardIAPage /> },
 
     ]
   },

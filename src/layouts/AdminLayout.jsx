@@ -47,7 +47,7 @@ const menu = [
         grupo: "Analisis Inteligencia",
         icon: FaChartLine,
         opciones: [
-             { nombre: "Dashboard IA", ruta: "#" }, 
+             { nombre: "Dashboard IA", ruta: "/dashboard/analisis/dashboard-ia" },
              { nombre: "Reportes Dinámicos", ruta: "#" },
         ],
     },
