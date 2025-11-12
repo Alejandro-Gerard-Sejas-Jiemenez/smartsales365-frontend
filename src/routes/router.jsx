@@ -14,7 +14,6 @@ import RecuperarPassword from "../pages/RecuperarPassword.jsx";
 import DashboardHome from "../pages/dashboard/home.jsx";
 import CuentasPage from "../pages/dashboard/usuarios/cuentas.jsx";
 import BitacoraPage from "../pages/dashboard/usuarios/bitacora.jsx";
-import AvisosPage from "../pages/dashboard/usuarios/avisos.jsx";
 import ClientesPage from "../pages/dashboard/usuarios/clientes.jsx"; 
 
 import CategoriasPage from "../pages/dashboard/catalogo/categorias.jsx";
@@ -23,6 +22,9 @@ import InventariosPage from "../pages/dashboard/catalogo/inventarios.jsx";
 import IngresosPage from "../pages/dashboard/catalogo/ingresos.jsx";
 
 import RegistroVentaPage from "../pages/dashboard/ventas/RegistroVenta.jsx";
+
+// Módulo de Avisos
+import AvisosIndex from "../pages/dashboard/avisos/AvisosIndex.jsx";
 
 import ErrorBoundaryPage from "../pages/ErrorBoundaryPage.jsx";
 import ProtectedRoute from "../components/routing/ProtectedRoute.jsx";
@@ -52,7 +54,9 @@ const router = createBrowserRouter([
       // Módulo: Acceso y Seguridad
       { path: "usuarios", element: <CuentasPage /> },
       { path: "usuarios/bitacora", element: <BitacoraPage /> },
-      { path: "avisos", element: <AvisosPage /> },
+      
+      // Módulo: Avisos y Notificaciones
+      { path: "avisos", element: <AvisosIndex /> },
       
       // Módulo: Catálogo
       { path: "clientes", element: <ClientesPage /> }, // Ya existía
