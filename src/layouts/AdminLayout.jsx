@@ -40,14 +40,14 @@ const menu = [
         icon: FaShoppingBag,
         opciones: [
             { nombre: "Registrar Venta", ruta: "/dashboard/ventas/registrar" },
-            { nombre: "Historial de Ventas", ruta: "#" },
+            { nombre: "Historial de Ventas", ruta: "/dashboard/ventas/historial" },
         ],
     },
     {
         grupo: "Analisis Inteligencia",
         icon: FaChartLine,
         opciones: [
-             { nombre: "Dashboard IA", ruta: "#" }, 
+             { nombre: "Dashboard IA", ruta: "/dashboard/analisis/dashboard-ia" },
              { nombre: "Reportes Dinámicos", ruta: "#" },
         ],
     },
